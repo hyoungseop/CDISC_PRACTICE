@@ -1,0 +1,28 @@
+
+data SDTM.SDTM_SE_SAMPLE(rename = (SESTDTC_1 = SESTDTC SEENDTC_1 = SEENDTC)); 
+retain STUDYID DOMAIN USUBJID SESEQ ETCD ELEMENT SESTDTC SEENDTC;
+set CRF.CRF_SE_SAMPLE(rename = (SECD = ETCD)); 
+attrib
+USUBJID format = $30.;
+
+*1. DOMAIN 생성;
+DOMAIN = 'SE';
+
+*2. USUBJID 생성;
+**STUDYID-SITEID-SUBJID;
+if length(strip(SUBJID)) = 1 then USUBJID = catt(STUDYID,"-",SITEID,"-00",SUBJID);
+else if length(strip(SUBJID)) = 2 then USUBJID = catt(STUDYID,"-",SITEID,"-0",SUBJID);
+else USUBJID = catt(STUDYID,"-",SITEID,"-",SUBJID);
+
+*3. 날짜 문자형으로 변경;
+SESTDTC_1 = put(SESTDTC,e8601da.);
+SEENDTC_1 = put(SEENDTC,e8601da.);
+
+drop SESTDTC SEENDTC;
+run;
+
+
+
+**REQUIRE: STUDYID DOMAIN USUBJID SESEQ ETCD SESTDTC SEENDTC;
+**PERM: ELEMENT;
+**ELEMENT 값에 대한 소문자/대문자 기준이 따로 없어서 따로 정제하지 않음;
